@@ -8,13 +8,19 @@ import doobie.hikari.HikariTransactor
 object Main extends IOApp {
 
   val pgResource: Resource[IO, HikariTransactor[IO]] =
-    HikariCpConnectionPool.loadTransactor("org.postgresql.Driver",
-                                          "jdbc:postgresql://localhost:5432/",
-                                          "tutorial",
-                                          "1234")
+    HikariCpConnectionPool.loadTransactor(
+      "org.postgresql.Driver",
+      "jdbc:postgresql://localhost:5432/",
+      "tutorial",
+      "1234"
+    )
 
   def run(args: List[String]): IO[ExitCode] =
     pgResource.use { xa =>
-      TutorialServer.stream[IO](xa).compile.drain.as(ExitCode.Success)
+      TutorialServer
+        .stream[IO](xa)
+        .compile
+        .drain
+        .as(ExitCode.Success)
     }
 }
